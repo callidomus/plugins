@@ -1,8 +1,26 @@
 {{
 select_data = oDict([('', ''),
-    ('6400_00260100', 'Ertrag Gesamt'),
-    ('6400_00262200', 'Ertrag Heute'),
-    ('6200_40263F00', 'Aktuelle Leistung'),
-    ('6180_08214800', 'Gerätestatus')])
+	('6180_08214800', 'Status'),
+	('6180_08416400', 'Status Netzrelais'),
+	('6180_08413300', 'Status Anlagensteuerung'),
+	('6180_08413200', 'Status Gerätesteuerung'),
+	('6380_40251E00', 'Eingang Leistung (W)'),
+	('6380_40451F00', 'Eingang Spannung (V)'),
+	('6380_40452100', 'Eingang Strom (A)'),
+	('6100_40263F00', 'Ausgang Leistung (W)'),
+	('6100_00465700', 'Ausgang Netzfrequenz (Hz)'),
+	('6100_40465300', 'Ausgang Strom (A) - L1'),
+	('6100_40465400', 'Ausgang Strom (A) - L2'),
+	('6100_40465500', 'Ausgang Strom (A) - L3'),
+	('6100_00464800', 'Ausgang Spannung (V) - L1'),
+	('6100_00464900', 'Ausgang Spannung (V) - L2'),
+	('6100_00464A00', 'Ausgang Spannung (V) - L3'),
+	('6100_40464000', 'Ausgang Leistung (W) - L1'),
+	('6100_40464100', 'Ausgang Leistung (W) - L2'),
+	('6100_40464200', 'Ausgang Leistung (W) - L3'),
+	('6400_00260100', 'Ertrag (Wh) - Gesamt'),
+	('6400_00262200', 'Ertrag (Wh) - Tag'),
+	('6400_00462E00', 'Betriebszeit (h)'),
+	('6400_00462F00', 'Einspeisezeit (h)')])
 form.guiSelect('sma_wr', label='Wert', named=select_data)
 }}
