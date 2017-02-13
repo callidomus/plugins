@@ -94,4 +94,4 @@ class SMA(lib.plugin.Plugin):
 
                 item(value, trigger=self.get_trigger())
             except:
-                logger.warning('Unable to update item %s with value %s' % (item, value))
+                self.logger.debug('Unable to update item %s with value %s' % (item, value))
