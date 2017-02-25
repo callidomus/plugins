@@ -3,29 +3,30 @@
 # Version 1.1
 ##############################################################################
 
+import lib.plugin
 import logging
 import requests
 import json
 
-logger = logging.getLogger('')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
-class SMA():
+class SMA(lib.plugin.Plugin):
 
-    def __init__(self, core, ip, username, password, cycle, **kwargs):
-        self._cd = core
-        self._username = username
-        self._password = password
+    def __init__(self, core, conf):
+        lib.plugin.Plugin.__init__(self, core, conf)
+        self._core = core
+        self._username = conf.get('username')
+        self._password = conf.get('password')
         self._session = None
-        self.url_login = 'http://{}/dyn/login.json'.format(ip)
-        self.url_logout = 'http://{}/dyn/logout.json'.format(ip)
-        self.url_values = 'http://{}/dyn/getValues.json'.format(ip)
+        self.url_login = 'http://{}/dyn/login.json'.format(conf.get('ip'))
+        self.url_logout = 'http://{}/dyn/logout.json'.format(conf.get('ip'))
+        self.url_values = 'http://{}/dyn/getValues.json'.format(conf.get('ip'))
         self.sma_objects = json.loads(open('/data/callidomus/local/plugins/sma/sma_objects.json').read())
         self.sma_strings = json.loads(open('/data/callidomus/local/plugins/sma/sma_strings_de.json').read())
         self.items = {}
-        core.scheduler.add('_sma_wr', self.update, cycle=int(cycle))
+        core.scheduler.add('_sma_wr', self.update, cycle=int(conf.get('cycle', 300)))
 
-    def run(self):
+    def start(self):
         self._login()
         self.alive = True
 
@@ -51,9 +52,9 @@ class SMA():
         except KeyError as e:
             self._session = None
             if str(res.get('err', '')) == '503':
-                logger.warning("Max amount of sesions reached")
+                self.logger.warning("Max amount of sesions reached")
             else:
-                logger.warning("Session ID expected ['result']['sid'], got %s", res)
+                self.logger.warning("Session ID expected ['result']['sid'], got %s", res)
 
     def _logout(self):
         if self._session is None:
@@ -61,19 +62,19 @@ class SMA():
         self._fetch_json(self.url_logout, {}, params={'sid': self._session})
         self._session = None
 
-    def parse_item(self, item):
-        if 'sma_wr' in item.conf:
-            keyword = item.conf['sma_wr']
-            self.items[keyword] = item
+    def pre_stage(self):
+        for node in self._core.config.query_nodes('sma_wr'):
+            keyword = node.attr['sma_wr']
+            self.items[keyword] = node
 
-    def update(self):
+    def update(self, value=None, trigger=None):
         for keyword, item in self.items.items():
             try:
                 res = self._fetch_value(keyword)
                 if res == {'err': 401}:
                     raise Warning('No valid session, starting new')
             except Warning as e:
-                logger.warning(e)
+                self.logger.warning(e)
                 self._login()
 
             try:
@@ -91,6 +92,6 @@ class SMA():
                 if self.sma_objects[keyword]['Typ'] == 1:
                     value = self.sma_strings[str(value[0]['val'][0]['tag'])]
 
-                item(value, caller='SMA')
+                item(value, trigger=self.get_trigger())
             except:
-                logger.warning('Unable to update item %s with value %s' % (item, value))
+                self.logger.debug('Unable to update item %s with value %s' % (item, value))
