@@ -2,8 +2,8 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 #########################################################################
 #  Copyright 2013 Robert Budde                       robert@projekt131.de
+#  Copyright 2017 callidomus                          info@callidomus.com
 #########################################################################
-#  Squeezebox-Plugin for SmartHome.py.  http://mknx.github.com/smarthome/
 #
 #  This plugin is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -57,48 +57,46 @@ class Squeezebox(lib.connection.Client):
                 return None
         return item.conf[attr]
 
-    def parse_item(self, item):
-        if 'squeezebox_recv' in item.conf:
+    def pre_stage(self):
+        for item in self._core.config.query_nodes('squeezebox_recv'):
             cmd = self._resolv_full_cmd(item, 'squeezebox_recv')
             if (cmd is None):
-                return None
+                continue
 
             logger.debug(
                 "squeezebox: {0} receives updates by \"{1}\"".format(
                     item, cmd))
-            if not cmd in self._val:
+            if cmd not in self._val:
                 self._val[cmd] = {'items': [item], 'logics': []}
             else:
-                if not item in self._val[cmd]['items']:
+                if item not in self._val[cmd]['items']:
                     self._val[cmd]['items'].append(item)
 
             if ('squeezebox_init' in item.conf):
                 cmd = self._resolv_full_cmd(item, 'squeezebox_init')
                 if (cmd is None):
-                    return None
+                    continue
 
                 logger.debug(
                     "squeezebox: {0} is initialized by \"{1}\"".format(
                         item, cmd))
-                if not cmd in self._val:
+                if cmd not in self._val:
                     self._val[cmd] = {'items': [item], 'logics': []}
                 else:
-                    if not item in self._val[cmd]['items']:
+                    if item not in self._val[cmd]['items']:
                         self._val[cmd]['items'].append(item)
 
-            if not cmd in self._init_cmds:
+            if cmd not in self._init_cmds:
                 self._init_cmds.append(cmd)
 
-        if 'squeezebox_send' in item.conf:
+        for item in self._core.config.query_nodes('squeezebox_send'):
             cmd = self._resolv_full_cmd(item, 'squeezebox_send')
             if (cmd is None):
-                return None
+                continue
             logger.debug(
                 "squeezebox: {0} is send to \"{1}\"".format(
                     item, cmd))
-            return self.update_item
-        else:
-            return None
+            item.add_method_trigger(self.update_item)
 
     def parse_logic(self, logic):
         if 'squeezebox_playerid' in logic.conf:
@@ -123,22 +121,22 @@ class Squeezebox(lib.connection.Client):
                 logger.debug(
                     "squeezebox: {} will be triggered by \"{}\"".format(
                         logic.name, cmd))
-                if not cmd in self._val:
+                if cmd not in self._val:
                     self._val[cmd] = {'items': [], 'logics': [logic]}
                 else:
-                    if not logic in self._val[cmd]['logics']:
+                    if logic not in self._val[cmd]['logics']:
                         self._val[cmd]['logics'].append(logic)
         else:
             return None
 
-    def update_item(self, item, caller=None, source=None, dest=None):
+    def update_item(self, value=None, trigger=None):
         # be careful: as the server echoes ALL comands not using this will
         # result in a loop
-        if caller != 'LMS':
+        if trigger.caller != 'LMS':
+            item = trigger.node
             cmd = self._resolv_full_cmd(item, 'squeezebox_send').split()
             if not self._check_mac(cmd[0]):
                 return
-            value = item()
             if isinstance(value, bool):
                 # convert to get '0'/'1' instead of 'True'/'False'
                 value = int(value)
@@ -170,9 +168,9 @@ class Squeezebox(lib.connection.Client):
         # print(response.decode('iso-8859-1').encode('utf-8').decode('unicode-escape'))
         # print(urllib.parse.unquote(response.decode('iso-8859-1')))
         # print(urllib.parse.unquote(response.decode('unicode-escape')))
-        #response = response.decode('iso-8859-1')
+        # response = response.decode('iso-8859-1')
         # print(type(response))
-        #logger.debug("squeezebox: Raw: {0}".format(response))
+        # logger.debug("squeezebox: Raw: {0}".format(response))
         data = [urllib.parse.unquote(data_str)
                 for data_str in response.decode().split()]
         logger.debug("squeezebox: Got: {0}".format(data))
@@ -275,7 +273,7 @@ class Squeezebox(lib.connection.Client):
                 for cmd in self._init_cmds:
                     self._send(cmd + ' ?')
 
-    def run(self):
+    def start(self):
         self.alive = True
 
     def stop(self):
