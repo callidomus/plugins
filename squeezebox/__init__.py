@@ -46,10 +46,14 @@ class Squeezebox(lib.connection.Client):
         if '<playerid>' in item.conf[attr]:
             # try to get from parent object
             parent_item = item.parent()
-            if (parent_item is not None) and ('squeezebox_playerid' in parent_item.conf) and self._check_mac(parent_item.conf['squeezebox_playerid']):
-                item.conf[attr] = item.conf[attr].replace('<playerid>', parent_item.conf['squeezebox_playerid'])
+            if (parent_item is not None) and ('squeezebox_playerid' in parent_item.conf) and self._check_mac(
+                    parent_item.conf['squeezebox_playerid']):
+                item.conf[attr] = item.conf[attr].replace(
+                    '<playerid>', parent_item.conf['squeezebox_playerid'])
             else:
-                logger.warning("squeezebox: could not resolve playerid for {0} from parent item {1}".format(item, parent_item))
+                logger.warning(
+                    "squeezebox: could not resolve playerid for {0} from parent item {1}".format(
+                        item, parent_item))
                 return None
         return item.conf[attr]
 
@@ -59,7 +63,9 @@ class Squeezebox(lib.connection.Client):
             if (cmd is None):
                 return None
 
-            logger.debug("squeezebox: {0} receives updates by \"{1}\"".format(item, cmd))
+            logger.debug(
+                "squeezebox: {0} receives updates by \"{1}\"".format(
+                    item, cmd))
             if not cmd in self._val:
                 self._val[cmd] = {'items': [item], 'logics': []}
             else:
@@ -71,7 +77,9 @@ class Squeezebox(lib.connection.Client):
                 if (cmd is None):
                     return None
 
-                logger.debug("squeezebox: {0} is initialized by \"{1}\"".format(item, cmd))
+                logger.debug(
+                    "squeezebox: {0} is initialized by \"{1}\"".format(
+                        item, cmd))
                 if not cmd in self._val:
                     self._val[cmd] = {'items': [item], 'logics': []}
                 else:
@@ -85,16 +93,20 @@ class Squeezebox(lib.connection.Client):
             cmd = self._resolv_full_cmd(item, 'squeezebox_send')
             if (cmd is None):
                 return None
-            logger.debug("squeezebox: {0} is send to \"{1}\"".format(item, cmd))
+            logger.debug(
+                "squeezebox: {0} is send to \"{1}\"".format(
+                    item, cmd))
             return self.update_item
         else:
             return None
 
     def parse_logic(self, logic):
         if 'squeezebox_playerid' in logic.conf:
-            playerid = logic.conf['squeezebox_playerid'];
+            playerid = logic.conf['squeezebox_playerid']
             if not self._check_mac(playerid):
-                logger.warning("squeezebox: invalid playerid for {0}".format(logic.name))
+                logger.warning(
+                    "squeezebox: invalid playerid for {0}".format(
+                        logic.name))
                 return None
         else:
             playerid = 'playerid_not_set'
@@ -105,9 +117,12 @@ class Squeezebox(lib.connection.Client):
             for cmd in cmds:
                 cmd = cmd.replace('<playerid>', playerid)
                 if not self._check_mac(cmd.split(maxsplit=1)[0]):
-                    logger.warning("squeezebox: no valid playerid in \"{}\"".format(cmd))
+                    logger.warning(
+                        "squeezebox: no valid playerid in \"{}\"".format(cmd))
                     continue
-                logger.debug("squeezebox: {} will be triggered by \"{}\"".format(logic.name, cmd))
+                logger.debug(
+                    "squeezebox: {} will be triggered by \"{}\"".format(
+                        logic.name, cmd))
                 if not cmd in self._val:
                     self._val[cmd] = {'items': [], 'logics': [logic]}
                 else:
@@ -136,13 +151,14 @@ class Squeezebox(lib.connection.Client):
                     # single-item-operation
                     cmd[1] = 'stop'
                     value = 1
-                if (cmd[1] == 'playlist') and (cmd[2] in ['shuffle', 'repeat']):
+                if (cmd[1] == 'playlist') and (
+                        cmd[2] in ['shuffle', 'repeat']):
                     # if a boolean item of [...] was set to false, send '0' to disable the option whatsoever
                     # replace cmd[3], as there are fixed values given and
                     # filling in 'value' is pointless
                     cmd[3] = '0'
             self._send(' '.join(urllib.parse.quote(cmd_str.format(value), encoding='iso-8859-1')
-                       for cmd_str in cmd))
+                                for cmd_str in cmd))
 
     def _send(self, cmd):
         logger.debug("squeezebox: Sending request: {0}".format(cmd))
@@ -242,7 +258,8 @@ class Squeezebox(lib.connection.Client):
         cmd = ' '.join(data_str for data_str in data[:-1])
         if (cmd in self._val):
             for item in self._val[cmd]['items']:
-                if re.match("[+-][0-9]+$", data[-1]) and not isinstance(item(), str):
+                if re.match("[+-][0-9]+$", data[-1]
+                            ) and not isinstance(item(), str):
                     data[-1] = int(data[-1]) + item()
                 item(data[-1], 'LMS', self.address)
             for logic in self._val[cmd]['logics']:
