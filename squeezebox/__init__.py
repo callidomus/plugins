@@ -259,7 +259,7 @@ class Squeezebox(lib.connection.Client):
                 if re.match("[+-][0-9]+$", data[-1]
                             ) and not isinstance(item(), str):
                     data[-1] = int(data[-1]) + item()
-                item(data[-1], caller='LMS', address=self.address)
+                item(data[-1], by='Plugin', caller='LMS', address=self.address)
             for logic in self._val[cmd]['logics']:
                 logic.trigger('squeezebox', cmd, data[-1])
 
