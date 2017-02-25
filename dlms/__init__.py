@@ -173,7 +173,7 @@ class DLMS(lib.plugin.Plugin):
                                 data[0], data[1], data[2]))
                     if data[0] in self._obis_codes:
                         for item in self._obis_codes[data[0]]['items']:
-                            item(data[1], 'DLMS', 'OBIS {}'.format(data[0]))
+                            item(data[1], caller='DLMS', 'OBIS'=data[0])
                 except Exception as e:
                     self.logger.warning(
                         "dlms: line={} exception={}".format(
