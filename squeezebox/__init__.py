@@ -26,12 +26,17 @@ import urllib.parse
 import lib.connection
 import re
 
+import lib.plugin
+
 logger = logging.getLogger('Squeezebox')
 
 
-class Squeezebox(lib.connection.Client):
+class Squeezebox(lib.connection.Client, lib.plugin.Plugin):
 
-    def __init__(self, core, host='127.0.0.1', port=9090, **kwargs):
+    def __init__(self, core, conf):
+        host = conf.get('host', '127.0.0.1')
+        port = conf.get('port', 9090)
+        lib.plugin.Plugin.__init__(self, core, conf)
         lib.connection.Client.__init__(self, host, port, monitor=True)
         self._sh = core
         self._val = {}
