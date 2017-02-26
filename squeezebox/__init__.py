@@ -272,7 +272,7 @@ class Squeezebox(lib.connection.Client, lib.plugin.Plugin):
         # enable listen-mode to get notified of changes
         self._send('listen 1')
         if self._init_cmds != []:
-            if self.connected:
+            if self._connected:
                 logger.debug('squeezebox: init read')
                 for cmd in self._init_cmds:
                     self._send(cmd + ' ?')
