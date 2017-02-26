@@ -76,7 +76,7 @@ class Squeezebox(lib.connection.Client, lib.plugin.Plugin):
                 if item not in self._val[cmd]['items']:
                     self._val[cmd]['items'].append(item)
 
-            if ('squeezebox_init' in item.conf):
+            if ('squeezebox_init' in item.attr):
                 cmd = self._resolv_full_cmd(item, 'squeezebox_init')
                 if (cmd is None):
                     continue
