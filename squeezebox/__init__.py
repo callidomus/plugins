@@ -48,19 +48,18 @@ class Squeezebox(lib.connection.Client, lib.plugin.Plugin):
 
     def _resolv_full_cmd(self, item, attr):
         # check if PlayerID wildcard is used
-        if '<playerid>' in item.conf[attr]:
+        if '<playerid>' in item.attr[attr]:
             # try to get from parent object
-            parent_item = item.parent()
-            if (parent_item is not None) and ('squeezebox_playerid' in parent_item.conf) and self._check_mac(
-                    parent_item.conf['squeezebox_playerid']):
-                item.conf[attr] = item.conf[attr].replace(
-                    '<playerid>', parent_item.conf['squeezebox_playerid'])
+            if (item.parent is not None) and ('squeezebox_playerid' in item.parent.attr) and self._check_mac(
+                    item.parent.attr['squeezebox_playerid']):
+                item.attr[attr] = item.attr[attr].replace(
+                    '<playerid>', item.parent.attr['squeezebox_playerid'])
             else:
                 logger.warning(
                     "squeezebox: could not resolve playerid for {0} from parent item {1}".format(
-                        item, parent_item))
+                        item, item.parent))
                 return None
-        return item.conf[attr]
+        return item.attr[attr]
 
     def pre_stage(self):
         for item in self._core.config.query_nodes('squeezebox_recv'):
