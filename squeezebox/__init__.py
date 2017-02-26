@@ -136,8 +136,8 @@ class Squeezebox(lib.connection.Client, lib.plugin.Plugin):
     def update_item(self, value=None, trigger=None):
         # be careful: as the server echoes ALL comands not using this will
         # result in a loop
-        if trigger.caller != 'LMS':
-            item = trigger.node
+        if trigger['caller'] != 'LMS':
+            item = trigger['node']
             cmd = self._resolv_full_cmd(item, 'squeezebox_send').split()
             if not self._check_mac(cmd[0]):
                 return
