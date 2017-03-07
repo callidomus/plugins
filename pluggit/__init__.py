@@ -142,12 +142,10 @@ class Pluggit(lib.plugin.Plugin):
         for item in self._core.config.query_nodes('pluggit_send'):
             # self.logger.debug("Pluggit: parse send item: {0}".format(item))
             pluggit_sendKey = item.attr['pluggit_send']
-            if pluggit_sendKey is None:
-                return None
-            else:
+            if pluggit_sendKey is not None:
                 self._myTempWriteDict[pluggit_sendKey] = item
                 # self.logger.debug("Pluggit: Inhalt des dicts _myTempWriteDict nach Zuweisung zu send item: '{0}'".format(self._myTempWriteDict))
-                return self.update_item
+                item.add_method_trigger(self.update_item)
 
     def update_item(self, value=None, trigger=None):
         if trigger['caller'] != 'Pluggit':
@@ -230,7 +228,7 @@ class Pluggit(lib.plugin.Plugin):
             self._modbusRegisterDic['prmRomIdxSpeedLevel'], read_qty=1).getRegister(0)
         self.logger.debug("Pluggit: Fan Speed: {0}".format(fan_speed_level))
 
-    def _refresh(self):
+    def _refresh(self, value=None, trigger=None):
         self.disconnect()
         time.sleep(1)
         self.connect()
