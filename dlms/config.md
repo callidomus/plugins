@@ -1,5 +1,5 @@
 {{
-form.guiInput('serialport', label='Device of the Reader', help="""Devicename of the Reader the e.g. /dev/ir.schake.12345""")
+form.guiInput('serialport', required=None, label='Device of the Reader', help="""Devicename of the Reader the e.g. /dev/ir.schake.12345""")
 
 select_baud = oDict([('auto', 'Auto'), ('300', '300 Baud'), ('600', '600 Baud'), ('1200', '1200 Baud'), ('2400', '2400 Baud'), ('4800', '4800 Baud'), ('9600', '9600 Baud')])
 form.guiSelect('baudrate', label='Baudrate', named=select_baud, help="""sets the baudrate used for reading from the meter - can be used to force specific baudrate (300,600,1200,2400,4800,9600,auto - default: 'auto')""")
