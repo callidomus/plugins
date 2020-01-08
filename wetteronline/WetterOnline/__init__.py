@@ -63,6 +63,7 @@ class WetterOnline:
                     'sunhours': float(day.xpath('.//div[8]/text()')[0].replace('h', '')),
                     'rain_probability': float(day.xpath('.//div[9]/text()')[0].replace('%', '')),
                     'img': day.xpath('.//div[@class="weathersymbol"]/img/@src')[0],
+                    'title': day.xpath('.//div[@class="weathersymbol"]/img/@title')[0],
                 }
 
                 if w['day'] == 'heute':
