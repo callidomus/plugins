@@ -78,12 +78,11 @@ class WetterOnlinePlugin(lib.plugin.Plugin):
 
     # Map native icons
     for wd in wol_data['weather']:
-      img = re.search(r"/([^/_]+)_+\.svg$", wd['img']).group(1)
-      if img in icons:
-        wd['img'] = icons[img]
-      else:
-        wd['img'] = 'question'
-      
+      img = re.search(r"/([^/_]+)_*\.svg$", wd['src'])
+      if img:
+        img = img.group(1)
+        if img in icons:
+          wd['img'] = icons[img]
     
     for keyword, item in self.items.items():
       try:
