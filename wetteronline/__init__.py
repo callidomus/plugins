@@ -15,6 +15,7 @@ icons = {
   'wbs1': 'weather.partlysunny',
   'mbs1': 'weather.partlysunny_n',
   'bdr1': 'weather.rain1',
+  'bds1': 'weather.rain1',
   'wbr1': 'weather.rain2_shower',
   'wbr2': 'weather.rain2_shower',
   'wbs2': 'weather.rain2_shower',
@@ -71,14 +72,14 @@ class WetterOnlinePlugin(lib.plugin.Plugin):
   def update(self, value=None, trigger=None):
     try:
       wol_data = self.wol.get()
-      self.logger.info("Successfully fetched WetterOnline data")
+      self.logger.info("Successfully fetched WetterOnline data for %i days", len(wol_data['weather']))
     except Exception:
       self.logger.exception('Failed getting WetterOnline data')
       return
 
     # Map native icons
     for wd in wol_data['weather']:
-      img = re.search(r"/([^/_]+)_*\.svg$", wd['src'])
+      img = re.search(r"/([^/_]+)_*\.(svg|png)$", wd['src'])
       if img:
         img = img.group(1)
         if img in icons:
