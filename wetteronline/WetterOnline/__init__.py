@@ -60,7 +60,7 @@ class WetterOnline:
                 )[-1].strip()
                 # Workaround 'today' becoming 'tomorrow' too early on the site
                 if day == 1 and daystr.lower() != "heute":
-                    continue
+                    break
                 w = {
                     "day": daystr,
                     "date": re.search(
